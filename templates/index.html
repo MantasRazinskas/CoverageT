@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semantic Coverage Tool</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <main class="container">
+        <h1>Semantic Coverage Tool</h1>
+        <p class="subtitle">
+            Compare expert (reference) stories against generated stories with
+            OpenAI embeddings. Reports coverage, recall, precision and F1.
+        </p>
+
+        <section class="card">
+            <h2>Upload Files</h2>
+            <form action="/analyze" method="post" enctype="multipart/form-data">
+                <label for="golden_file">reference.txt</label>
+                <input
+                    id="golden_file"
+                    name="golden_file"
+                    type="file"
+                    accept=".txt,text/plain"
+                    required
+                >
+
+                <label for="generated_file">generated.txt</label>
+                <input
+                    id="generated_file"
+                    name="generated_file"
+                    type="file"
+                    accept=".txt,text/plain"
+                    required
+                >
+
+                <button type="submit">Analyze</button>
+            </form>
+        </section>
+
+        {% if error %}
+            <section class="card error">
+                <h2>Error</h2>
+                <p>{{ error }}</p>
+            </section>
+        {% endif %}
+
+        {% if analysis %}
+            <section class="card">
+                <h2>Summary</h2>
+                <ul class="summary-list">
+                    <li><strong>reference stories:</strong> {{ analysis.summary.golden_count }}</li>
+                    <li><strong>generated stories:</strong> {{ analysis.summary.generated_count }}</li>
+                    <li>
+                        <strong>coverage @0.80:</strong>
+                        {{ "%.2f"|format(analysis.summary.coverage_080) }}%
+                        ({{ analysis.summary.covered_080 }}/{{ analysis.summary.golden_count }})
+                    </li>
+                    <li>
+                        <strong>coverage @0.85:</strong>
+                        {{ "%.2f"|format(analysis.summary.coverage_085) }}%
+                        ({{ analysis.summary.covered_085 }}/{{ analysis.summary.golden_count }})
+                    </li>
+                    <li><strong>model:</strong> {{ analysis.summary.model_name }}</li>
+                </ul>
+            </section>
+
+            <section class="card">
+                <h2>Evaluation Metrics (per threshold)</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>threshold</th>
+                            <th>recall (coverage)</th>
+                            <th>precision</th>
+                            <th>f1-score</th>
+                            <th>TP</th>
+                            <th>FP</th>
+                            <th>FN</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for metric in analysis.evaluation_metrics %}
+                            <tr>
+                                <td>{{ "%.2f"|format(metric.threshold) }}</td>
+                                <td>{{ "%.4f"|format(metric.recall) }}</td>
+                                <td>{{ "%.4f"|format(metric.precision) }}</td>
+                                <td>{{ "%.4f"|format(metric.f1) }}</td>
+                                <td>{{ metric.tp }}</td>
+                                <td>{{ metric.fp }}</td>
+                                <td>{{ metric.fn }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="card">
+                <h2>CSV Export</h2>
+                <ul>
+                    <li><a href="/download/{{ run_id }}/evaluation_metrics.csv">evaluation_metrics.csv</a></li>
+                </ul>
+            </section>
+        {% endif %}
+    </main>
+</body>
+</html>

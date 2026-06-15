@@ -1,0 +1,49 @@
+PromptTemplate
+- name: {{template_name}}
+- version: {{version}}
+- goal: {{overall_goal_of_the_generation_task}}
+================================================================
+PromptSection (order: 1, sectionType: USER_STORY_STRUCTURE)
+- title: {{section_title}}
+- description: {{required user story schema and fields, e.g. "As a
+  <Role>, I want <Feature>, so that <Benefit>. Source: <TraceLink>";
+  the one-story-one-functionality rule;}}
+================================================================
+PromptSection (order: 2, sectionType: PROCESSING_STRATEGY)
+- title: {{section_title}}
+- description: {{how each artifact modality must be interpreted}}
+  ProcessingRule (one per ModalityType):
+  - appliedToType: TEXTUAL
+    ruleText: {{what to extract from textual artifacts}}
+  - appliedToType: WIREFRAME_IMAGE
+    ruleText: {{what to decompose from wireframe artifacts}}
+  - appliedToType: DIAGRAM_IMAGE
+    ruleText: {{what to identify in diagram artifacts}}
+================================================================
+PromptSection (order: 3, sectionType: QUALITY_CRITERIA)
+- title: {{section_title}}
+  QualityCriterion (repeat per criterion):
+  - name: {{criterion_name}}
+    description: {{what the criterion requires}}
+    exampleBad: {{story illustrating a violation}}
+    exampleGood: {{story satisfying the criterion}}
+================================================================
+PromptSection (order: 4, sectionType: REQUIRED_ELEMENTS)
+- title: {{section_title}}
+- description: {{completeness obligations: all fragments from all
+  artifacts covered; duplicate requirements merged with all sources
+  listed; no meaningful element ignored}}
+================================================================
+PromptSection (order: 5, sectionType: EXAMPLES)
+- title: {{section_title}}
+  StoryExample (repeat; covering UI-, API-, and system-level stories):
+  - exampleId: {{id}}
+    requirementSource: {{artifact / screen / spreadsheet row /
+      diagram element}}
+    storyText: {{As a <Role>, I want <Feature>, so that <Benefit>}}
+================================================================
+PromptSection (order: 6, sectionType: OUTPUT_FORMAT)
+- title: {{section_title}}
+- description: {{required output layout: story title, then As / I want
+  / So that / Source; stories grouped by functional section; final
+  summary}}
